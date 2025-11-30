@@ -1,0 +1,358 @@
+<!-- <div class="calendar-container">
+  <div class="header">
+    <button class="back-button" (click)="goBack()">Back to Admin Dashboard</button>
+    <h2 class="title">Calendar & Comments</h2>
+    <div class="month-navigation">
+      <button class="nav-btn" (click)="previousMonth()">&lt;</button>
+      <span>{{ getMonthName() }} {{ currentYear }}</span>
+      <button class="nav-btn" (click)="nextMonth()">&gt;</button>
+      <button class="nav-btn" (click)="goToToday()">Today</button>
+    </div>
+  </div>
+
+  <div class="calendar">
+    <div class="calendar-grid">
+      <div class="day-header" *ngFor="let day of getDayNames()">{{ day }}</div>
+      <div *ngFor="let date of calendarDays" 
+           class="calendar-day" 
+           [class.other-month]="!isCurrentMonth(date)"
+           [class.today]="isToday(date)"
+           [class.selected]="isSelectedDate(date)"
+           (click)="selectDate(date)">
+        <div class="day-number">{{ date.getDate() }}</div>
+        <div class="entry-count" *ngIf="getEntriesForDate(date) > 0">
+          {{ getEntriesForDate(date) }} entries
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="entries-panel">
+    <div class="entries-header">
+      <h3>Entries for {{ selectedDate | date:'mediumDate' }}</h3>
+      <button *ngIf="!isAddingEntry" class="btn btn-primary" (click)="openAddEntryForm()">
+        Add Entry
+      </button>
+    </div>
+
+    <div class="entry-form" *ngIf="isAddingEntry">
+      <div class="form-group">
+        <label for="category">Category</label>
+        <select id="category" class="form-control" [(ngModel)]="newEntry.categoryId">
+          <option value="">Select a category</option>
+          <option *ngFor="let category of categories" [value]="category.id">
+            {{ category.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="text">Comment</label>
+        <textarea id="text" class="form-control" rows="3" [(ngModel)]="newEntry.text"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="price">Price (Optional)</label>
+        <input id="price" type="number" class="form-control" [(ngModel)]="newEntry.price" placeholder="0" step="0.01" min="0" />
+      </div>
+
+      <div class="entry-actions">
+        <button class="btn btn-primary" (click)="editingEntryId ? updateEntry() : addEntry()">
+          {{ editingEntryId ? 'Update' : 'Add' }} Entry
+        </button>
+        <button class="btn btn-secondary" (click)="cancelEdit()">Cancel</button>
+      </div>
+    </div>
+
+    <div class="entry-list">
+      <div class="entry-item" *ngFor="let entry of selectedDateEntries">
+        <div class="entry-header">
+          <span class="entry-category" [style.background-color]="getCategoryColor(entry.categoryId)">
+            {{ getCategoryName(entry.categoryId) }}
+          </span>
+          <div class="entry-actions">
+            <button class="btn btn-secondary" *ngIf="entry.canEdit" (click)="editEntry(entry)">Edit</button>
+            <button class="btn btn-danger" *ngIf="entry.canDelete" (click)="deleteEntry(entry.id)">Delete</button>
+          </div>
+        </div>
+        <p>{{ entry.text }}</p>
+        <div class="entry-price" *ngIf="entry.price && entry.price > 0">
+  <strong>Price: ₹{{ entry.price | number:'1.2-2' }}</strong>
+</div>
+
+        <div class="entry-meta">
+          <span>{{ entry.userName }} ({{ entry.userPhone }})</span>
+          <span> • </span>
+          <span>{{ entry.timestamp | date:'medium' }}</span>
+          <span *ngIf="entry.canEdit" class="remaining-time"> • {{ getRemainingTime(entry) }} remaining</span>
+        </div>
+      </div>
+
+      <div *ngIf="selectedDateEntries.length === 0" class="no-entries">
+        No entries for this date
+      </div>
+    </div>
+  </div>
+
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner"></div>
+  </div>
+</div> -->
+<div class="calendar-container">
+
+  <!-- Header -->
+  <div class="header">
+    <button class="back-button" (click)="goBack()">Back to Admin Dashboard</button>
+    <h2 class="title">Calendar & Comments</h2>
+
+    <div class="month-navigation">
+      <button class="nav-btn" (click)="previousMonth()">&lt;</button>
+      <span>{{ getMonthName() }} {{ currentYear }}</span>
+      <button class="nav-btn" (click)="nextMonth()">&gt;</button>
+      <button class="nav-btn" (click)="goToToday()">Today</button>
+    </div>
+  </div>
+
+  <!-- Calendar View -->
+  <div class="calendar">
+    <div class="calendar-grid">
+
+      <!-- Day Names -->
+      <div class="day-header" *ngFor="let day of getDayNames()">
+        {{ day }}
+      </div>
+
+      <!-- Calendar Days -->
+      <div
+        *ngFor="let date of calendarDays"
+        class="calendar-day"
+        [class.other-month]="!isCurrentMonth(date)"
+        [class.today]="isToday(date)"
+        [class.selected]="isSelectedDate(date)"
+        (click)="selectDate(date)"
+      >
+        <div class="day-number">{{ date.getDate() }}</div>
+
+        <div class="entry-count" *ngIf="getEntriesForDate(date) > 0">
+          {{ getEntriesForDate(date) }} entries
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Entries Panel -->
+  <div class="entries-panel">
+
+    <!-- Header -->
+    <div class="entries-header">
+      <h3>Entries for {{ selectedDate | date:'mediumDate' }}</h3>
+
+      <button
+        *ngIf="!isAddingEntry"
+        class="btn btn-primary"
+        (click)="openAddEntryForm()"
+      >
+        Add Entry
+      </button>
+    </div>
+
+    <!-- Entry Form -->
+    <div class="entry-form" *ngIf="isAddingEntry">
+      <h4>{{ editingEntryId ? 'Edit Entry' : 'Add New Entry' }}</h4>
+      
+      <div class="form-group">
+        <label for="date">Date</label>
+        <input
+          id="date"
+          type="date"
+          class="form-control"
+          [(ngModel)]="newEntry.date"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="category">Category</label>
+        <select id="category" class="form-control" [(ngModel)]="newEntry.categoryId" required>
+          <option value="">Select a category</option>
+          <option *ngFor="let category of categories" [value]="category.id">
+            {{ category.name }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="text">Description/Comment</label>
+        <textarea
+          id="text"
+          class="form-control"
+          rows="3"
+          [(ngModel)]="newEntry.text"
+          placeholder="Enter description or comment..."
+          required
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="price">Price (Optional)</label>
+        <input
+          id="price"
+          type="number"
+          class="form-control"
+          [(ngModel)]="newEntry.price"
+          placeholder="0"
+          step="0.01"
+          min="0"
+        />
+      </div>
+
+      <div class="entry-actions">
+        <button class="btn btn-primary" (click)="editingEntryId ? updateEntry() : addEntry()">
+          {{ editingEntryId ? 'Update' : 'Add' }} Entry
+        </button>
+        <button class="btn btn-secondary" (click)="cancelEdit()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Entry List -->
+    <div class="entry-list">
+
+      <div class="entry-item" *ngFor="let entry of selectedDateEntries">
+
+        <div class="entry-header">
+          <span
+            class="entry-category"
+            [style.background-color]="getCategoryColor(entry.categoryId)"
+          >
+            {{ getCategoryName(entry.categoryId) }}
+          </span>
+
+          <div class="entry-actions">
+            <button class="btn btn-secondary" *ngIf="entry.canEdit" (click)="editEntry(entry)">Edit</button>
+            <button class="btn btn-danger" *ngIf="entry.canDelete" (click)="deleteEntry(entry.id)">Delete</button>
+          </div>
+        </div>
+
+        <p>{{ entry.text }}</p>
+
+        <!-- Price -->
+        <div class="entry-price" *ngIf="entry.price && entry.price > 0">
+          <strong>Price: ₹{{ entry.price | number:'1.2-2' }}</strong>
+        </div>
+
+        <div class="entry-meta">
+          <span>{{ entry.userName }} ({{ entry.userPhone }})</span>
+          <span> • </span>
+          <span>{{ entry.timestamp | date:'medium' }}</span>
+          <span *ngIf="entry.canEdit" class="remaining-time">
+            • {{ getRemainingTime(entry) }} remaining
+          </span>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="entry-comments" style="margin-top: 15px;">
+          <button 
+            class="btn btn-secondary btn-sm" 
+            (click)="toggleComments(entry.id)"
+          >
+            {{ openComments[entry.id] ? 'Hide' : 'Show' }} Comments 
+            ({{ getCommentsForEntry(entry).length }})
+          </button>
+
+          <div *ngIf="openComments[entry.id]" class="comments-container" style="margin-top: 15px;">
+            <!-- Comments List -->
+            <div *ngIf="getCommentsForEntry(entry).length > 0" class="comments-list">
+              <div class="comment-item" *ngFor="let comment of getCommentsForEntry(entry)" style="background: #f9f9f9; padding: 12px; margin-bottom: 10px; border-radius: 6px;">
+                <div class="comment-header">
+                  <div class="comment-author">
+                    <strong>{{ comment.authorName }}</strong> ({{ comment.authorPhone }})
+                  </div>
+                  <div class="comment-time">
+                    {{ comment.addedDate | date:'short' }}
+                  </div>
+                </div>
+                <div class="comment-text" style="margin-top: 8px;">{{ comment.text }}</div>
+
+                <!-- Delete Comment Button (Admin Only) -->
+                <div style="margin-top: 8px;">
+                  <button 
+                    class="btn btn-danger btn-xs" 
+                    (click)="deleteComment(entry.id, comment.id)"
+                    [disabled]="isLoading"
+                    style="font-size: 11px; padding: 4px 8px;"
+                  >
+                    Delete Comment
+                  </button>
+                </div>
+
+                <!-- Admin Replies -->
+                <div class="comment-replies" *ngIf="comment.replies && comment.replies.length > 0" style="margin-top: 10px; padding-left: 20px;">
+                  <div class="reply-item" *ngFor="let reply of comment.replies" style="background: #f0f0f0; padding: 8px; margin: 5px 0; border-radius: 4px;">
+                    <div class="reply-header">
+                      <strong>Admin</strong>
+                      <span class="reply-date" style="margin-left: 10px; font-size: 12px; color: #666;">
+                        {{ reply.addedDate | date:'short' }}
+                      </span>
+                    </div>
+                    <p class="reply-text" style="margin: 5px 0;">{{ reply.text }}</p>
+                  </div>
+                </div>
+
+                <!-- Admin Reply Form -->
+                <div class="reply-form" style="margin-top: 10px; padding-left: 20px;">
+                  <textarea
+                    [(ngModel)]="replyText[entry.id] && replyText[entry.id][comment.id]"
+                    placeholder="Reply as admin..."
+                    class="form-control"
+                    rows="2"
+                    style="margin-bottom: 5px;"
+                  ></textarea>
+                  <button 
+                    class="btn btn-primary btn-sm" 
+                    (click)="replyToComment(entry.id, comment.id)"
+                    [disabled]="isLoading"
+                  >
+                    Reply
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="getCommentsForEntry(entry).length === 0" class="no-comments" style="padding: 10px; color: #999; font-style: italic;">
+              No comments yet
+            </div>
+
+            <!-- Add Comment Form (Admin can also add comments) -->
+            <div class="add-comment" style="margin-top: 15px;">
+              <textarea
+                [(ngModel)]="newComment[entry.id]"
+                placeholder="Add a comment as admin..."
+                class="form-control"
+                rows="3"
+                style="margin-bottom: 8px;"
+              ></textarea>
+              <button 
+                class="btn btn-primary btn-sm" 
+                (click)="addComment(entry.id)"
+                [disabled]="isLoading"
+              >
+                Add Comment
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="selectedDateEntries.length === 0" class="no-entries">
+        No entries for this date
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Loading -->  
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner"></div>
+  </div>
+
+</div>

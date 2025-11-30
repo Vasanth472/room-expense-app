@@ -1,0 +1,94 @@
+<div class="category-management-container">
+  <header class="page-header">
+    <button class="btn btn-secondary" (click)="goBack()">← Back</button>
+    <h1><span class="header-icon">🏷️</span> Manage Categories</h1>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <h2><span class="section-icon">{{ editMode ? '✏️' : '➕' }}</span> {{ editMode ? 'Edit Category' : 'Add New Category' }}</h2>
+      <form (ngSubmit)="addCategory()" class="category-form">
+        <div class="form-group">
+          <label for="name">Category Name</label>
+          <input
+            type="text"
+            id="name"
+            [(ngModel)]="newCategory.name"
+            name="name"
+            placeholder="Enter category name (like rice, gas, oil, etc.)"
+            required
+            class="form-control"
+            [disabled]="isLoading"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="color">Color</label>
+          <div class="color-picker">
+            <input
+              type="color"
+              id="color"
+              [(ngModel)]="newCategory.color"
+              name="color"
+              class="color-input"
+              [disabled]="isLoading"
+            />
+            <div class="predefined-colors">
+              <div
+                *ngFor="let color of predefinedColors"
+                class="color-option"
+                [style.background-color]="color"
+                [class.selected]="newCategory.color === color"
+                (click)="selectColor(color)"
+                [title]="color"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+            <span class="btn-icon">{{ editMode ? '💾' : '➕' }}</span> {{ editMode ? 'Update Category' : 'Add Category' }}
+          </button>
+          <button
+            type="button"
+            *ngIf="editMode"
+            class="btn btn-secondary"
+            (click)="cancelEdit()"
+            [disabled]="isLoading"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Categories ({{ categories.length }})</h2>
+      <div *ngIf="isLoading" class="loading">Loading categories...</div>
+      <div class="categories-list" *ngIf="!isLoading && categories.length > 0; else noCategories">
+        <div class="category-item" *ngFor="let category of categories">
+          <div class="category-info">
+            <div class="category-header">
+              <div class="category-color" [style.background-color]="category.color"></div>
+              <div class="category-name">{{ category.name }}</div>
+            </div>
+            <div class="category-date">Created: {{ category.createdDate | date:'short' }}</div>
+          </div>
+          <div class="category-actions">
+            <button class="btn btn-secondary btn-sm" (click)="editCategory(category)" [disabled]="isLoading">Edit</button>
+            <button class="btn btn-danger btn-sm" (click)="deleteCategory(category.id)" [disabled]="isLoading">Delete</button>
+          </div>
+        </div>
+      </div>
+      <ng-template #noCategories>
+        <p class="no-data" *ngIf="!isLoading">No categories added yet. Add your first category above.</p>
+      </ng-template>
+    </div>
+  </div>
+</div>
+

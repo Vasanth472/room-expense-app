@@ -1,0 +1,142 @@
+<div class="calendar-container">
+  <div class="calendar-header">
+    <button class="btn btn-secondary" (click)="goBack()">← Back</button>
+    <h2>Calendar & Daily Entries</h2>
+    <button class="btn btn-secondary" (click)="goToToday()">Today</button>
+  </div>
+
+  <div class="calendar-wrapper">
+    <!-- Calendar View -->
+    <div class="calendar-view">
+      <div class="calendar-nav">
+        <button class="btn btn-icon" (click)="previousMonth()">‹</button>
+        <h3>{{ getMonthName() }} {{ currentYear }}</h3>
+        <button class="btn btn-icon" (click)="nextMonth()">›</button>
+      </div>
+
+      <div class="calendar-grid">
+        <div class="calendar-day-header" *ngFor="let day of getDayNames()">
+          {{ day }}
+        </div>
+
+        <div
+          class="calendar-day"
+          *ngFor="let date of calendarDays"
+          [class.today]="isToday(date)"
+          [class.selected]="isSelectedDate(date)"
+          [class.other-month]="!isCurrentMonth(date)"
+          [class.has-entries]="getEntriesForDate(date) > 0"
+          (click)="selectDate(date)"
+        >
+          <span class="day-number">{{ date.getDate() }}</span>
+          <span class="entry-count" *ngIf="getEntriesForDate(date) > 0">
+            {{ getEntriesForDate(date) }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Daily Details Section -->
+    <div class="daily-details">
+      <div class="details-header">
+        <h3>Entries for {{ selectedDate | date: 'fullDate' }}</h3>
+      </div>
+
+      <!-- Entries List -->
+      <div class="entries-list">
+        <div *ngIf="selectedDateEntries.length === 0" class="no-entries">
+          <p>No entries for this date.</p>
+          <p style="color: #666; font-size: 14px;">Only admins can add calendar entries. You can add comments to existing entries.</p>
+        </div>
+
+        <div class="entry-item" *ngFor="let entry of selectedDateEntries">
+          <div class="entry-header">
+            <div
+              class="entry-category"
+              [style.background-color]="getCategoryColor(entry.categoryId)"
+            >
+              {{ getCategoryName(entry.categoryId) }}
+            </div>
+
+            <div class="entry-time">
+              {{ entry.timestamp | date: 'short' }}
+            </div>
+          </div>
+
+          <div class="entry-content">
+            <p>{{ entry.text }}</p>
+
+            <div class="entry-price" *ngIf="entry.price && entry.price > 0">
+              <strong>Price: ₹{{ entry.price | number:'1.2-2' }}</strong>
+           class="entry-author">
+              by {{ entry.userName }}
+            </div>
+
+            <!-- Comments Section -->
+            <div class="entry-comments" style="margin-top: 15px;">
+              <button 
+                class="btn btn-secondary btn-sm" 
+                (click)="toggleComments(entry.id)"
+              >
+                {{ openComments[entry.id] ? 'Hide' : 'Show' }} Comments 
+                ({{ getCommentsForEntry(entry).length }})
+              </button>
+
+              <div *ngIf="openComments[entry.id]" class="comments-container" style="margin-top: 15px;">
+                <!-- Comments List -->
+                <div *ngIf="getCommentsForEntry(entry).length > 0" class="comments-list">
+                  <div class="comment-item" *ngFor="let comment of getCommentsForEntry(entry)" style="background: #f9f9f9; padding: 12px; margin-bottom: 10px; border-radius: 6px;">
+                    <div class="comment-header">
+                      <div class="comment-author">
+                        <strong>{{ comment.authorName }}</strong> ({{ comment.authorPhone }})
+                      </div>
+                      <div class="comment-time">
+                        {{ comment.addedDate | date:'short' }}
+                      </div>
+                    </div>
+                    <div class="comment-text" style="margin-top: 8px;">{{ comment.text }}</div>
+
+                    <!-- Admin Replies -->
+                    <div class="comment-replies" *ngIf="comment.replies && comment.replies.length > 0" style="margin-top: 10px; padding-left: 20px;">
+                      <div class="reply-item" *ngFor="let reply of comment.replies" style="background: #f0f0f0; padding: 8px; margin: 5px 0; border-radius: 4px;">
+                        <div class="reply-header">
+                          <strong>Admin</strong>
+                          <span class="reply-date" style="margin-left: 10px; font-size: 12px; color: #666;">
+                            {{ reply.addedDate | date:'short' }}
+                          </span>
+                        </div>
+                        <p class="reply-text" style="margin: 5px 0;">{{ reply.text }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngIf="getCommentsForEntry(entry).length === 0" class="no-comments" style="padding: 10px; color: #999; font-style: italic;">
+                  No comments yet
+                </div>
+
+                <!-- Add Comment Form -->
+                <div class="add-comment" style="margin-top: 15px;">
+                  <textarea
+                    [(ngModel)]="newComment[entry.id]"
+                    placeholder="Add a comment..."
+                    class="form-control"
+                    rows="3"
+                    style="margin-bottom: 8px;"
+                  ></textarea>
+                  <button 
+                    class="btn btn-primary btn-sm" 
+                    (click)="addComment(entry.id)"
+                    [disabled]="isLoading"
+                  >
+                    Add Comment
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

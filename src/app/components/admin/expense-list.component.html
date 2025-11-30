@@ -1,0 +1,321 @@
+<div class="expense-list-container">
+  <header class="page-header">
+    <button class="btn btn-secondary" (click)="goBack()">← Back</button>
+    <h1>Expense Management</h1>
+    <button class="btn btn-primary" (click)="addExpense()">+ Add Expense</button>
+  </header>
+
+  <div class="container">
+    <!-- Quick Add Expense -->
+    <div class="card quick-add-card">
+      <h3>Quick Add Expense</h3>
+      <div class="quick-add-row">
+        <div class="form-group">
+          <label>Category</label>
+          <select [(ngModel)]="quickExpense.categoryId" class="form-control">
+            <option value="">Select Category</option>
+            <option *ngFor="let c of categories" [value]="c.id">{{ c.name }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Amount</label>
+          <input type="number" [(ngModel)]="quickExpense.amount" class="form-control" placeholder="Enter amount" />
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" [(ngModel)]="quickExpense.description" class="form-control" placeholder="Description (optional)" />
+        </div>
+
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" [(ngModel)]="quickExpense.date" class="form-control" />
+        </div>
+
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button class="btn btn-primary" (click)="saveQuickExpense()">Save</button>
+        </div>
+      </div>
+    </div>
+    <!-- Filters -->
+    <div class="card filter-card">
+      <h3>Filters</h3>
+      <div class="filter-row">
+        <div class="filter-group">
+          <label for="category" class="filter-label">
+            <span class="filter-icon">🏷️</span>
+            <span class="filter-text">Filter by Category:</span>
+          </label>
+          <div class="custom-dropdown">
+            <div class="dropdown-select" [class.open]="isDropdownOpen" (click)="toggleDropdown()">
+              <span class="dropdown-selected">
+                <span class="selected-icon" *ngIf="getSelectedCategory()">
+                  <img *ngIf="!isEmojiIcon(getCategoryIcon(getSelectedCategory()))" [src]="getCategoryIcon(getSelectedCategory())" alt="" class="category-icon-img">
+                  <span *ngIf="isEmojiIcon(getCategoryIcon(getSelectedCategory()))" class="category-icon-emoji">{{ getCategoryIcon(getSelectedCategory()) }}</span>
+                </span>
+                <span class="selected-text">
+                  {{ selectedCategoryId === 'All' ? 'All Categories' : getCategoryName(selectedCategoryId) }}
+                </span>
+              </span>
+              <span class="dropdown-arrow" [class.rotated]="isDropdownOpen">▼</span>
+            </div>
+            <div class="dropdown-menu" *ngIf="isDropdownOpen">
+              <div class="dropdown-item" (click)="selectCategory('All')" [class.active]="selectedCategoryId === 'All'">
+                <span class="item-icon">📋</span>
+                <span class="item-text">All Categories</span>
+              </div>
+              <div class="dropdown-item" *ngFor="let cat of categories" (click)="selectCategory(cat.id)" [class.active]="selectedCategoryId === cat.id">
+                <span class="item-icon">
+                  <img *ngIf="!isEmojiIcon(getCategoryIcon(cat))" [src]="getCategoryIcon(cat)" alt="" class="category-icon-img">
+                  <span *ngIf="isEmojiIcon(getCategoryIcon(cat))" class="category-icon-emoji">{{ getCategoryIcon(cat) }}</span>
+                </span>
+                <span class="item-text">{{ cat.name }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label for="startDate">Start Date:</label>
+          <input
+            type="date"
+            id="startDate"
+            [(ngModel)]="startDate"
+            (change)="onDateRangeChange()"
+            class="form-control"
+          />
+        </div>
+
+        <div class="filter-group">
+          <label for="endDate">End Date:</label>
+          <input
+            type="date"
+            id="endDate"
+            [(ngModel)]="endDate"
+            (change)="onDateRangeChange()"
+            class="form-control"
+          />
+        </div>
+
+        <div class="filter-group">
+          <button class="btn btn-secondary" (click)="clearFilters()">Clear Filters</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="card summary-card">
+      <h3>Summary</h3>
+      <div class="summary-info">
+        <span>Total Expenses: <strong>{{ filteredExpenses.length }}</strong></span>
+        <span>Total Amount: <strong>{{ formatCurrency(getTotalAmount()) }}</strong></span>
+        <span>Total Comments: <strong>{{ getAllCommentsCount() }}</strong></span>
+      </div>
+    </div>
+
+    <!-- Expenses List -->
+    <div class="expenses-list" *ngIf="filteredExpenses.length > 0; else noExpenses">
+      <div class="expense-item" *ngFor="let expense of filteredExpenses">
+        <div class="expense-main">
+          <div class="expense-header">
+            <div class="expense-category" [style.background-color]="getCategoryColor(expense.categoryId)">
+              {{ getCategoryName(expense.categoryId) }}
+            </div>
+            <div class="expense-amount">{{ formatCurrency(expense.amount) }}</div>
+          </div>
+          <div class="expense-date">{{ expense.date | date:'dd/MM/yyyy' }}</div>
+          <div class="expense-description" *ngIf="expense.description">
+            {{ expense.description }}
+          </div>
+          <div class="expense-added">Added by: {{ expense.addedBy }} on {{ expense.addedDate | date:'short' }}</div>
+          
+          <!-- Comments Section -->
+          <div class="comments-section">
+          <!-- <button class="btn btn-secondary btn-sm" (click)="toggleCommentSection(expense.id)">
+            {{ showCommentSection[expense.id] ? 'Hide' : 'Show' }} Comments 
+            ({{ getCommentsForExpense(expense.id).length }})
+          </button> -->
+          <button class="btn btn-secondary btn-sm" (click)="toggleCommentSection(expense.id)">
+            {{ showCommentSection[expense.id] ? 'Hide' : 'Show' }} details 
+            ({{ getCommentsForExpense(expense.id).length }})
+          </button>
+
+          <div *ngIf="showCommentSection[expense.id]" class="comments-container">
+            <div class="comments-list" *ngIf="getCommentsForExpense(expense.id).length > 0">
+              <div class="comment-item" *ngFor="let comment of getCommentsForExpense(expense.id)">
+                <div class="comment-header">
+                  <div class="comment-author">
+                    <strong>{{ comment.authorName }}</strong> ({{ comment.authorPhone }})
+                  </div>
+                  <div class="comment-time">
+                    {{ comment.timestamp | date:'short' }}
+                    <span class="time-remaining" *ngIf="comment.canEdit && isMyComment(comment)">
+                      ({{ getRemainingTime(comment) }} left)
+                    </span>
+                    <span class="locked-badge" *ngIf="!comment.canEdit">(Locked)</span>
+                  </div>
+                </div>
+                <div class="comment-text tamil-text">{{ comment.text }}</div>
+                <div class="comment-actions" *ngIf="isMyComment(comment) || authService.isAdmin()">
+                  <button
+                    class="btn btn-secondary btn-xs"
+                    (click)="editComment(comment)"
+                    [disabled]="!comment.canEdit"
+                    *ngIf="isMyComment(comment) && comment.canEdit && editingCommentId !== comment.id"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    class="btn btn-danger btn-xs"
+                    (click)="deleteComment(comment.id, expense.id)"
+                    [disabled]="!comment.canDelete && !authService.isAdmin()"
+                    *ngIf="isMyComment(comment) || authService.isAdmin()"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="add-comment">
+              <div *ngIf="editingCommentId">
+                <p class="edit-notice">Editing comment...</p>
+              </div>
+              <textarea
+                [(ngModel)]="newComment[expense.id]"
+                placeholder="Add a comment..."
+                class="form-control tamil-text"
+                rows="2"
+              ></textarea>
+              <div class="comment-form-actions">
+                <button 
+                  class="btn btn-primary btn-sm" 
+                  (click)="editingCommentId ? updateComment(expense.id) : addComment(expense.id)"
+                >
+                  {{ editingCommentId ? 'Update Comment' : 'Add Comment' }}
+                </button>
+                <button 
+                  *ngIf="editingCommentId"
+                  class="btn btn-secondary btn-sm" 
+                  (click)="cancelEdit(expense.id)"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+
+        <div class="expense-actions">
+          <button class="btn btn-secondary btn-sm" (click)="editExpense(expense)">Edit</button>
+          <!-- <button class="btn btn-info btn-sm" (click)="showDetails(expense)">Show details</button> -->
+          <button class="btn btn-danger btn-sm" (click)="deleteExpense(expense.id)">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div class="modal-backdrop" *ngIf="showDetailsModal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>{{ detailsEntry?.text || 'Details' }}</h3>
+          <button class="btn btn-secondary btn-sm" (click)="closeDetails()">Close</button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Date:</strong> {{ detailsEntry?.date | date:'fullDate' }} {{ detailsEntry?.timestamp | date:'shortTime' }}</p>
+          <p *ngIf="detailsEntry?.price"><strong>Price:</strong> ₹{{ detailsEntry?.price | number:'1.2-2' }}</p>
+          <p *ngIf="detailsEntry?.categoryName"><strong>Category:</strong> {{ detailsEntry?.categoryName }}</p>
+          <p *ngIf="detailsEntry?.userName"><strong>Added by:</strong> {{ detailsEntry?.userName }}</p>
+          <div class="day-by-day">
+            <h4>Day-by-day entries ({{ detailsMonthEntries.length }})</h4>
+
+            <div *ngIf="authService.isAdmin()">
+              <button class="btn btn-primary btn-sm" (click)="isAddingDayEntry = !isAddingDayEntry">
+                {{ isAddingDayEntry ? 'Cancel' : 'Add Day Entry' }}
+              </button>
+
+              <div *ngIf="isAddingDayEntry" class="add-day-entry">
+                <label>Date</label>
+                <input type="date" [(ngModel)]="newDayEntry.date" class="form-control" />
+                <label>Category</label>
+                <select [(ngModel)]="newDayEntry.categoryId" class="form-control">
+                  <option *ngFor="let c of categories" [value]="c.id">{{ c.name }}</option>
+                </select>
+                <label>Text</label>
+                <textarea [(ngModel)]="newDayEntry.text" class="form-control" rows="2"></textarea>
+                <label>Price (optional)</label>
+                <input type="number" [(ngModel)]="newDayEntry.price" class="form-control" />
+                <div class="form-actions">
+                  <button class="btn btn-primary btn-sm" (click)="addDayEntry()">Save</button>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="detailsMonthEntries && detailsMonthEntries.length > 0">
+              <div *ngFor="let entry of detailsMonthEntries" class="day-entry">
+                <div class="day-entry-header">
+                  <strong>{{ entry.date | date:'fullDate' }}</strong>
+                  <span class="entry-time">{{ entry.timestamp | date:'shortTime' }}</span>
+                  <span *ngIf="entry.price"> - ₹{{ entry.price | number:'1.2-2' }}</span>
+                  <div class="entry-actions" *ngIf="authService.isAdmin()">
+                    <button class="btn btn-secondary btn-xs" (click)="editDayEntry(entry)">Edit</button>
+                    <button class="btn btn-danger btn-xs" (click)="deleteDayEntry(entry.id)">Delete</button>
+                  </div>
+                </div>
+                <div class="day-entry-body">
+                  <p>{{ entry.text }}</p>
+                  <div class="day-entry-comments">
+                    <button class="btn btn-link btn-sm" (click)="toggleDayComments(entry)">
+                      {{ detailsOpenComments[entry.id] ? 'Hide' : 'Show' }} comments ({{ entry.comments?.length || 0 }})
+                    </button>
+
+                    <div *ngIf="detailsOpenComments[entry.id]">
+                      <div *ngIf="entry.comments && entry.comments.length > 0">
+                        <div *ngFor="let c of entry.comments" class="comment-item">
+                          <div class="comment-header">
+                            <strong>{{ c.authorName || 'User' }}</strong>
+                            <span class="comment-date">{{ c.addedDate | date:'short' }}</span>
+                          </div>
+                          <p>{{ c.text }}</p>
+                          <div *ngIf="c.replies && c.replies.length > 0" class="replies">
+                            <div *ngFor="let r of c.replies" class="reply-item">
+                              <div class="reply-header"><strong>Admin</strong> <span>{{ r.addedDate | date:'short' }}</span></div>
+                              <p>{{ r.text }}</p>
+                            </div>
+                          </div>
+                          <div class="reply-form">
+                            <textarea [(ngModel)]="replyText[entry.id] && replyText[entry.id][c.id]" class="form-control" rows="2" placeholder="Reply as admin"></textarea>
+                            <button class="btn btn-primary btn-sm" (click)="replyToDayComment(entry.id, c.id, (replyText[entry.id] && replyText[entry.id][c.id]) || '')">Reply</button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="add-day-comment">
+                        <textarea [(ngModel)]="newDayComment[entry.id]" class="form-control" rows="2" placeholder="Add comment..."></textarea>
+                        <div class="form-actions">
+                          <button class="btn btn-primary btn-sm" (click)="addDayComment(entry.id, newDayComment[entry.id])">Add Comment</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="!detailsMonthEntries || detailsMonthEntries.length === 0">
+              <p>No day entries for this month.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noExpenses>
+      <div class="card">
+        <p class="no-data">No expenses found for the selected filters.</p>
+      </div>
+    </ng-template>
+  </div>
+</div>

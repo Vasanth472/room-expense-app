@@ -1,0 +1,96 @@
+<div class="add-member-container">
+  <header class="page-header">
+    <button class="btn btn-secondary" (click)="goBack()">← Back</button>
+    <h1>Manage WhatsApp Group Members</h1>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <h2>{{ editMode ? 'Edit Member' : 'Add New Member' }}</h2>
+      <form (ngSubmit)="addMember()" class="member-form">
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input
+            type="text"
+            id="name"
+            [(ngModel)]="newMember.name"
+            name="name"
+            placeholder="Enter member name"
+            required
+            class="form-control"
+            [disabled]="isLoading"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone Number (10 digits)</label>
+          <input
+            type="tel"
+            id="phone"
+            [(ngModel)]="newMember.phone"
+            name="phone"
+            placeholder="Enter 10-digit phone number"
+            required
+            class="form-control"
+            maxlength="10"
+            pattern="[0-9]{10}"
+            [disabled]="isLoading || editMode"
+          />
+          <small class="form-hint" *ngIf="editMode">Phone number cannot be changed</small>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="newMember.isAdmin"
+              name="isAdmin"
+              [disabled]="isLoading"
+            />
+            <span>Admin Access</span>
+          </label>
+          <small class="form-hint">Admins can access the admin dashboard and manage members/expenses</small>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="isLoading">
+            {{ editMode ? 'Update Member' : 'Add Member' }}
+          </button>
+          <button
+            type="button"
+            *ngIf="editMode"
+            class="btn btn-secondary"
+            (click)="cancelEdit()"
+            [disabled]="isLoading"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Group Members ({{ members.length }})</h2>
+      <div *ngIf="isLoading" class="loading">Loading members...</div>
+      <div class="members-list" *ngIf="!isLoading && members.length > 0; else noMembers">
+        <div class="member-item" *ngFor="let member of members">
+          <div class="member-info">
+            <div class="member-header">
+              <div class="member-name">{{ member.name }}</div>
+              <span class="member-badge" *ngIf="member.isAdmin">Admin</span>
+            </div>
+            <div class="member-phone">{{ member.phone }}</div>
+            <div class="member-date">Added: {{ member.addedDate | date:'short' }}</div>
+          </div>
+          <div class="member-actions">
+            <button class="btn btn-secondary btn-sm" (click)="editMember(member)" [disabled]="isLoading || !isAdmin">Edit</button>
+            <button class="btn btn-danger btn-sm" (click)="removeMember(member.id)" [disabled]="isLoading || !isAdmin" [title]="!isAdmin ? 'Admin access required' : ''">Remove</button>
+          </div>
+        </div>
+      </div>
+      <ng-template #noMembers>
+        <p class="no-data" *ngIf="!isLoading">No members added yet. Add your first member above.</p>
+      </ng-template>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,74 @@
+<div class="user-dashboard">
+  <header class="dashboard-header">
+    <div class="header-left">
+      <h1>User Dashboard</h1>
+      <div class="datetime-display">
+        <div class="date-display">📅 {{ currentDateString }}</div>
+        <div class="time-display">🕐 {{ currentTime }}</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="user-info">
+        <span *ngIf="currentMember">{{ currentMember.name }} ({{ authService.getCurrentPhone() }})</span>
+        <span *ngIf="!currentMember">User: {{ authService.getCurrentPhone() }}</span>
+      </span>
+      <button class="btn btn-secondary" (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="dashboard-content">
+      <!-- Monthly Summary Card -->
+      <div class="summary-card">
+        <div class="summary-header">
+          <h2><span class="header-icon">📊</span> Monthly Summary</h2>
+          <!-- <div class="month-badge">{{ getMonthName(currentMonth) }} {{ currentYear }}</div> -->
+        </div>
+        
+        <div class="summary-content" *ngIf="summary; else noSummary">
+          <div class="summary-grid">
+            <div class="summary-stat">
+              <div class="stat-label">Total Expenses</div>
+              <div class="stat-value highlight">{{ formatCurrency(summary.totalExpenses) }}</div>
+            </div>
+            
+            <div class="summary-stat">
+              <div class="stat-label">Total Members</div>
+              <div class="stat-value">{{ summary.totalMembers }}</div>
+            </div>
+            
+            <div class="summary-stat">
+              <div class="stat-label">Per Person Amount</div>
+              <div class="stat-value highlight">{{ formatCurrency(summary.perPersonAmount) }}</div>
+            </div>
+            
+            <div class="summary-stat">
+              <div class="stat-label">Balance</div>
+              <div class="stat-value" [class.positive]="getRemaining() >= 0" [class.negative]="getRemaining() < 0">
+                {{ formatCurrency(getRemaining()) }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <ng-template #noSummary>
+          <div class="no-data">
+            <p>No expenses recorded for this month.</p>
+          </div>
+        </ng-template>
+      </div>
+
+    <div class="action-cards">
+      <div class="action-card" (click)="navigateToCalendar()">
+        <div class="action-icon">📅</div>
+        <h3>Calendar & Entries</h3>
+        <p>View calendar and add daily entries/comments</p>
+      </div>
+
+      <div class="action-card" (click)="navigateToExpenses()">
+        <div class="action-icon">💰</div>
+        <h3>View All Expenses</h3>
+        <p>See detailed expense breakdown and add comments</p>
+      </div>
+    </div>
+  </div>
+</div>

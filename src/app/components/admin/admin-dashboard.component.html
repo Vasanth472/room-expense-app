@@ -1,0 +1,128 @@
+<div class="admin-dashboard">
+  <header class="dashboard-header">
+    <div class="header-left">
+      <h1>Admin Dashboard</h1>
+      <div class="datetime-display">
+        <div class="date-display">📅 {{ currentDateString }}</div>
+        <div class="time-display">🕐 {{ currentTime }}</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="user-info">
+        <span *ngIf="currentMember">{{ currentMember.name }} ({{ authService.getCurrentPhone() }})</span>
+        <span *ngIf="!currentMember">Admin: {{ authService.getCurrentPhone() }}</span>
+      </span>
+      <button class="btn btn-secondary" (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="dashboard-content">
+      <!-- Monthly Summary Card -->
+      <div class="summary-card">
+        <div class="summary-header">
+          <h3><span class="header-icon">📊</span> Monthly Summary</h3>
+          <!-- <div class="month-badge">{{ getMonthName(currentMonth) }} {{ currentYear }}</div> -->
+        </div>
+        
+        <div class="summary-content" *ngIf="summary; else noSummary">
+          <div class="summary-grid">
+            <div class="summary-stat">
+              <div class="stat-label">Total Expenses</div>
+              <div class="stat-value highlight">{{ formatCurrency(summary.totalExpenses) }}</div>
+            </div>
+            
+            <div class="summary-stat">
+              <div class="stat-label">Total Members</div>
+              <div class="stat-value">{{ summary.totalMembers }}</div>
+            </div>
+            
+            <div class="summary-stat">
+              <div class="stat-label">Per Person Amount</div>
+              <div class="stat-value highlight">{{ formatCurrency(summary.perPersonAmount) }}</div>
+            </div>
+            
+            <div class="summary-stat">
+              <div class="stat-label">Balance</div>
+              <div class="stat-value" [class.positive]="getRemaining() >= 0" [class.negative]="getRemaining() < 0">
+                {{ formatCurrency(getRemaining()) }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <ng-template #noSummary>
+          <div class="no-data">
+            <p>No expenses recorded for this month.</p>
+          </div>
+        </ng-template>
+        
+        <!-- Full Amount Section -->
+        <div class="full-amount-section">
+          <div class="section-header">
+            <h4>Full Amount Setting</h4>
+          </div>
+          <div class="full-amount-form">
+            <div class="input-group">
+              <label for="fullAmount">Enter Full Amount:</label>
+              <div class="input-wrapper">
+                <input 
+                  type="number" 
+                  id="fullAmount"
+                  placeholder="0.00" 
+                  [(ngModel)]="fullAmount" 
+                  class="form-control full-amount-input"
+                  min="0"
+                  step="0.01"
+                />
+                <button 
+                  class="btn btn-primary btn-save" 
+                  (click)="saveFullAmount()"
+                  [disabled]="isSaving"
+                >
+                  <span *ngIf="!isSaving">Save</span>
+                  <span *ngIf="isSaving">Saving...</span>
+                </button>
+              </div>
+            </div>
+            <div class="save-feedback" *ngIf="saveMessage">
+              <span class="feedback-message" [class.success]="saveSuccess" [class.error]="!saveSuccess">
+                {{ saveMessage }}
+              </span>
+            </div>
+            <div class="current-amount" *ngIf="fullAmount > 0">
+              <span class="info-text">Current saved amount: <strong>{{ formatCurrency(fullAmount) }}</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Cards -->
+      <div class="action-cards">
+        <div class="action-card" (click)="navigateToCategories()">
+          <div class="action-icon">🏷️</div>
+          <h3>Manage Categories</h3>
+          <p>Add, edit, or delete categories (Work, Personal, Events)</p>
+        </div>
+
+        <div class="action-card" (click)="navigateToMembers()">
+          <div class="action-icon">👥</div>
+          <h3>Manage Members</h3>
+          <p>Add or remove WhatsApp group members</p>
+          <div class="member-count">{{ memberCount }} members <span class="admin-count">({{ adminCount }} admins)</span></div>
+        </div>
+
+        <div class="action-card" (click)="navigateToExpenses()">
+          <div class="action-icon">💰</div>
+          <h3>Manage Expenses</h3>
+          <p>Add, edit, or delete expenses</p>
+        </div>
+
+        <div class="action-card" (click)="navigateToCalendar()">
+          <div class="action-icon">📅</div>
+          <h3>Calendar & Entries</h3>
+          <p>View calendar and add daily entries/comments</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,133 @@
+<div class="login-container">
+  <div class="login-card">
+    <h1>Room Expense Management</h1>
+    <p class="subtitle">WhatsApp Group Member Login</p>
+
+    
+    <form (ngSubmit)="onLogin()" class="login-form">
+      <div class="form-group">
+        <label for="phone">Mobile Number (10 digits)</label>
+        <input
+          type="tel"
+          id="phone"
+          [(ngModel)]="phone"
+          name="phone"
+          placeholder="Enter your 10-digit mobile number"
+          required
+          class="form-control"
+          (input)="onPhoneInput($event)"
+          maxlength="10"
+          pattern="[0-9]{10}"
+          [disabled]="isLoading"
+        />
+        <small class="form-hint">Enter your 10-digit WhatsApp group member number</small>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          [(ngModel)]="password"
+          name="password"
+          placeholder="Enter your password"
+          required
+          class="form-control"
+          (input)="onPasswordInput($event)"
+          [disabled]="isLoading"
+        />
+        <small class="form-hint">Your account password (contact admin to set/reset)</small>
+      </div>
+
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+
+      <button 
+        type="submit" 
+        class="btn btn-primary btn-block"
+        [disabled]="isLoading || !phone || phone.length !== 10 || !password"
+      >
+        <span *ngIf="!isLoading">Login</span>
+        <span *ngIf="isLoading">Validating...</span>
+      </button>
+
+      <div class="forgot-password-link">
+        <button 
+          type="button" 
+          class="link-button"
+          (click)="openForgotPassword()"
+          [disabled]="isLoading"
+        >
+          Forgot Password?
+        </button>
+      </div>
+    </form>
+
+    <div class="login-info">
+      <p><strong>Note:</strong> Only WhatsApp group members can access this application.</p>
+      <p>If you're not a member, contact the group admin to get access.</p>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div *ngIf="showForgotPassword" class="modal-overlay" (click)="closeForgotPassword()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Forgot Password</h2>
+        <button type="button" class="close-btn" (click)="closeForgotPassword()">×</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-description">
+          Enter your phone number below. We'll send you a password reset link via SMS or you can contact the admin for assistance.
+        </p>
+
+        <div class="form-group">
+          <label for="forgotPhone">Mobile Number</label>
+          <input
+            type="tel"
+            id="forgotPhone"
+            [(ngModel)]="forgotPhone"
+            name="forgotPhone"
+            placeholder="Enter your 10-digit phone number"
+            maxlength="10"
+            class="form-control"
+            (input)="onForgotPhoneInput($event)"
+          />
+        </div>
+
+        <div *ngIf="forgotError" class="error-message">
+          {{ forgotError }}
+        </div>
+
+        <div *ngIf="forgotMessage" class="success-message">
+          {{ forgotMessage }}
+        </div>
+
+        <div class="admin-contact">
+          <p><strong>Or contact admin directly:</strong></p>
+          <p>Admin Phone: <strong>7339211**8</strong></p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button 
+          type="button" 
+          class="btn btn-secondary"
+          (click)="closeForgotPassword()"
+        >
+          Back to Login
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-primary"
+          (click)="submitForgotPassword()"
+          [disabled]="!forgotPhone || forgotPhone.length !== 10"
+        >
+          Send Reset Link
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
