@@ -1,0 +1,13 @@
+node_modules
+dist
+dist/**
+.git
+.gitignore
+**/node_modules
+**/npm-debug.log
+env
+.env
+*.log
+coverage
+tmp
+temp

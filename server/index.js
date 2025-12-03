@@ -3,6 +3,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
+const path = require('path');
+const fs = require('fs');
 
 const authRoutes = require('./routes/auth');
 const membersRoutes = require('./routes/members');
@@ -95,6 +97,17 @@ app.use('/api/expenses', expensesRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/settings', settingsRoutes);
 
-app.get('/', (req, res) => res.json({ ok: true }));
+// Serve Angular static files when available (production build)
+const distPath = path.join(__dirname, '..', 'dist', 'room-expense-app');
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+
+  // Fall back to index.html for client-side routing (SPA)
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+} else {
+  app.get('/', (req, res) => res.json({ ok: true }));
+}
 
 app.listen(port, () => console.log(`Server listening on port ${port}`));
