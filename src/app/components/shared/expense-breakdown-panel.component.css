@@ -1,0 +1,131 @@
+.breakdown-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  z-index: 450;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+@media (min-width: 640px) {
+  .breakdown-overlay {
+    align-items: center;
+    padding: 20px;
+  }
+}
+
+.breakdown-panel {
+  background: #fff;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85dvh;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 640px) {
+  .breakdown-panel {
+    border-radius: 16px;
+  }
+}
+
+.breakdown-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.breakdown-panel__header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #667eea;
+}
+
+.breakdown-panel__close {
+  background: #f3f4f6;
+  border: none;
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.breakdown-panel__sub {
+  margin: 0;
+  padding: 8px 16px 12px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.breakdown-panel__body {
+  overflow-y: auto;
+  padding: 0 16px 24px;
+  flex: 1;
+}
+
+.breakdown-loading,
+.breakdown-empty {
+  text-align: center;
+  color: #888;
+  padding: 20px;
+  font-size: 14px;
+}
+
+.breakdown-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.breakdown-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.breakdown-item__main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.breakdown-item__name {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 15px;
+  flex: 1;
+  word-break: break-word;
+}
+
+.breakdown-item__amount {
+  font-weight: 700;
+  color: #667eea;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.breakdown-item__meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.breakdown-item__cat {
+  background: #eef2ff;
+  color: #5568d3;
+  padding: 2px 8px;
+  border-radius: 6px;
+}

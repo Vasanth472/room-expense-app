@@ -1,8 +1,11 @@
-<div class="category-management-container">
-  <header class="page-header">
-    <button class="btn btn-secondary" (click)="goBack()">← Back</button>
-    <h1><span class="header-icon">🏷️</span> Manage Categories</h1>
-  </header>
+<div class="category-management-container app-shell">
+  <app-page-header
+    title="Manage Categories"
+    [showBack]="true"
+    [showLogout]="true"
+    (backClick)="goBack()"
+    (logoutClick)="logout()"
+  ></app-page-header>
 
   <div class="container">
     <div class="card">

@@ -1,9 +1,13 @@
-<div class="calendar-container">
-  <div class="calendar-header">
-    <button class="btn btn-secondary" (click)="goBack()">← Back</button>
-    <h2>Calendar & Daily Entries</h2>
-    <button class="btn btn-secondary" (click)="goToToday()">Today</button>
-  </div>
+<div class="calendar-container app-shell">
+  <app-page-header
+    title="Calendar & Entries"
+    [showBack]="true"
+    [showLogout]="true"
+    (backClick)="goBack()"
+    (logoutClick)="logout()"
+  >
+    <button header-actions type="button" class="app-header__btn app-header__btn--ghost" (click)="goToToday()">Today</button>
+  </app-page-header>
 
   <div class="calendar-wrapper">
     <!-- Calendar View -->

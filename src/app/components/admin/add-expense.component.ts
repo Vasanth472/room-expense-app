@@ -7,11 +7,12 @@ import { CategoryService } from '../../services/category.service';
 import { AuthService } from '../../services/auth.service';
 import { Expense } from '../../models/expense.model';
 import { Category } from '../../models/category.model';
+import { PageHeaderComponent } from '../shared/page-header.component';
 
 @Component({
   selector: 'app-add-expense',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PageHeaderComponent],
   templateUrl: './add-expense.component.html',
   styleUrls: ['./add-expense.component.css']
 })
@@ -114,5 +115,9 @@ export class AddExpenseComponent implements OnInit {
 
   cancel(): void {
     this.router.navigate(['/admin/expenses']);
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }

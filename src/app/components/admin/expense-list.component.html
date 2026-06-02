@@ -1,9 +1,13 @@
-<div class="expense-list-container">
-  <header class="page-header">
-    <button class="btn btn-secondary" (click)="goBack()">← Back</button>
-    <h1>Expense Management</h1>
-    <button class="btn btn-primary" (click)="addExpense()">+ Add Expense</button>
-  </header>
+<div class="expense-list-container app-shell">
+  <app-page-header
+    title="Expense Management"
+    [showBack]="true"
+    [showLogout]="true"
+    (backClick)="goBack()"
+    (logoutClick)="logout()"
+  >
+    <button header-actions type="button" class="btn btn-primary btn-sm" (click)="addExpense()">+ Add</button>
+  </app-page-header>
 
   <div class="container">
     <!-- Quick Add Expense -->

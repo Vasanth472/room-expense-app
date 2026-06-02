@@ -8,11 +8,12 @@ import { AuthService } from '../../../services/auth.service';
 import { ExpenseEntry} from '../../../models/expense-entry.model';
 import { CommentEntry } from '../../../models/comment-entry.model';
 import { Category } from '../../../models/category.model';
+import { PageHeaderComponent } from '../../shared/page-header.component';
 
 @Component({
   selector: 'app-admin-calendar',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PageHeaderComponent],
   templateUrl: './admin-calendar.component.html',
   styleUrls: ['./admin-calendar.component.css']
 })
@@ -346,6 +347,10 @@ export class AdminCalendarComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/admin']);
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 
   // Comment management methods

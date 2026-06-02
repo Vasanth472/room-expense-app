@@ -5,11 +5,12 @@ import { FormsModule } from '@angular/forms';
 import { CategoryService } from '../../services/category.service';
 import { Category } from '../../models/category.model';
 import { AuthService } from '../../services/auth.service';
+import { PageHeaderComponent } from '../shared/page-header.component';
 
 @Component({
   selector: 'app-category-management',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PageHeaderComponent],
   templateUrl: './category-management.component.html',
   styleUrls: ['./category-management.component.css']
 })
@@ -134,6 +135,10 @@ export class CategoryManagementComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/admin']);
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 
   selectColor(color: string): void {

@@ -3,15 +3,16 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { ExpenseService } from '../../services/expense.service';
-import { MemberService } from '../../services/member.service';
-import { SettingsService } from '../../services/settings.service';
 import { MonthlySummary } from '../../models/monthly-summary.model';
 import { Member } from '../../models/member.model';
+import { PageHeaderComponent } from '../shared/page-header.component';
+import { ExpenseHistoryPanelComponent } from '../shared/expense-history-panel.component';
+import { ExpenseBreakdownPanelComponent } from '../shared/expense-breakdown-panel.component';
 
 @Component({
   selector: 'app-user-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PageHeaderComponent, ExpenseHistoryPanelComponent, ExpenseBreakdownPanelComponent],
   templateUrl: './user-dashboard.component.html',
   styleUrls: ['./user-dashboard.component.css']
 })
@@ -19,9 +20,11 @@ export class UserDashboardComponent implements OnInit, OnDestroy {
   summary: MonthlySummary | null = null;
   currentMonth: number = new Date().getMonth() + 1;
   currentYear: number = new Date().getFullYear();
-  memberCount: number = 0;
   currentMember: Member | null = null;
   fullAmount: number = 0;
+  showHistoryPanel = false;
+  showExpenseBreakdown = false;
+  historyRefreshKey = 0;
   // Real-time date and time
   currentDate: Date = new Date();
   currentTime: string = '';
@@ -32,8 +35,6 @@ export class UserDashboardComponent implements OnInit, OnDestroy {
   constructor(
     authService: AuthService,
     private expenseService: ExpenseService,
-    private memberService: MemberService,
-    private settingsService: SettingsService,
     private router: Router
   ) {
     this.authService = authService;
@@ -41,10 +42,7 @@ export class UserDashboardComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadSummary();
-    this.memberCount = this.memberService.getMemberCount();
     this.currentMember = this.authService.getCurrentMember();
-    // Load full amount to calculate balance
-    this.loadFullAmount();
     // Initialize and start real-time clock
     this.updateDateTime();
     this.timeInterval = setInterval(() => {
@@ -83,24 +81,17 @@ export class UserDashboardComponent implements OnInit, OnDestroy {
     return `${dayName}, ${day} ${month} ${year}`;
   }
 
-  loadFullAmount(): void {
-    this.settingsService.getFullAmount().subscribe({
-      next: val => this.fullAmount = val,
-      error: err => console.error('Failed loading fullAmount', err)
-    });
-  }
-
   loadSummary(): void {
     this.expenseService.getMonthlySummary(this.currentMonth, this.currentYear).subscribe({
       next: (s) => {
         this.summary = s;
+        this.fullAmount = s.fullAmount;
       },
       error: (err) => {
         console.error('Failed to load monthly summary:', err);
         this.summary = null;
       }
     });
-    this.memberCount = this.memberService.getMemberCount();
   }
 
   logout(): void {
@@ -125,8 +116,37 @@ export class UserDashboardComponent implements OnInit, OnDestroy {
     return months[month - 1] || '';
   }
 
-  getRemaining(): number {
-    const total = this.summary ? this.summary.totalExpenses : 0;
-    return (this.fullAmount || 0) - total;
+  getPerPersonAmount(): number {
+    return this.summary?.perPersonAmount ?? 0;
+  }
+
+  getFullAmountForSummary(): number {
+    return this.summary?.fullAmount ?? 0;
+  }
+
+  getTotalExpenses(): number {
+    return this.summary?.totalExpenses ?? 0;
+  }
+
+  /** Balance = full amount − total expenses */
+  getBalance(): number {
+    return this.getFullAmountForSummary() - this.getTotalExpenses();
+  }
+
+  openHistory(): void {
+    this.showHistoryPanel = true;
+    this.historyRefreshKey++;
+  }
+
+  closeHistory(): void {
+    this.showHistoryPanel = false;
+  }
+
+  openExpenseBreakdown(): void {
+    this.showExpenseBreakdown = true;
+  }
+
+  closeExpenseBreakdown(): void {
+    this.showExpenseBreakdown = false;
   }
 }

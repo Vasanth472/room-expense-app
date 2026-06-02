@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { PasswordResetService } from '../../services/password-reset.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -21,11 +22,15 @@ export class LoginComponent implements OnInit {
   showForgotPassword: boolean = false;
   forgotPhone: string = '';
   forgotMessage: string = '';
+  forgotNote: string = '';
   forgotError: string = '';
+  forgotLoading: boolean = false;
+  adminContactPhone: string = '';
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private passwordResetService: PasswordResetService
   ) {}
 
   ngOnInit(): void {
@@ -109,19 +114,25 @@ export class LoginComponent implements OnInit {
   // Forgot password methods
   openForgotPassword(): void {
     this.showForgotPassword = true;
-    this.forgotPhone = '';
+    this.forgotPhone = this.phone || '';
+    this.forgotNote = '';
     this.forgotMessage = '';
     this.forgotError = '';
+    this.passwordResetService.getAdminContactPhone().subscribe(phone => {
+      this.adminContactPhone = phone;
+    });
   }
 
   closeForgotPassword(): void {
     this.showForgotPassword = false;
     this.forgotPhone = '';
+    this.forgotNote = '';
     this.forgotMessage = '';
     this.forgotError = '';
+    this.forgotLoading = false;
   }
 
-  async submitForgotPassword(): Promise<void> {
+  submitForgotPassword(): void {
     this.forgotError = '';
     this.forgotMessage = '';
 
@@ -135,16 +146,28 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    try {
-      // For now, show a success message (backend will send email/SMS in production)
-      this.forgotMessage = 'Check your phone for a password reset link. Contact admin if needed.';
-      setTimeout(() => {
-        this.closeForgotPassword();
-      }, 3000);
-    } catch (error) {
-      console.error('Forgot password error:', error);
-      this.forgotError = 'Error processing request. Please try again.';
-    }
+    this.forgotLoading = true;
+    this.passwordResetService.requestReset(this.forgotPhone.trim(), this.forgotNote.trim()).subscribe(result => {
+      this.forgotLoading = false;
+      if (result.success) {
+        this.forgotMessage = result.message || 'Request sent to admin. You will get a new password soon.';
+        if (result.adminContactPhone) {
+          this.adminContactPhone = result.adminContactPhone;
+        }
+        setTimeout(() => this.closeForgotPassword(), 4000);
+      } else {
+        this.forgotError = result.error || 'Could not submit request.';
+      }
+    });
+  }
+
+  getAdminTelLink(): string {
+    return this.adminContactPhone ? `tel:+91${this.adminContactPhone}` : '';
+  }
+
+  getAdminWhatsAppLink(): string {
+    const text = encodeURIComponent('Hi, I requested a password reset for the Room Expense app.');
+    return this.adminContactPhone ? `https://wa.me/91${this.adminContactPhone}?text=${text}` : '';
   }
 
   onForgotPhoneInput(event: any): void {

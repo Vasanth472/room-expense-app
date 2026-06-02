@@ -1,0 +1,83 @@
+<div class="history-overlay" *ngIf="open" (click)="close()">
+  <div class="history-panel" (click)="$event.stopPropagation()">
+    <div class="history-panel__header">
+      <button type="button" class="history-panel__back" *ngIf="selected" (click)="backToList()">← Back</button>
+      <h2>{{ selected ? 'Archive Details' : 'Expense History' }}</h2>
+      <button
+        type="button"
+        class="history-panel__refresh"
+        *ngIf="!selected"
+        (click)="loadList()"
+        title="Refresh now"
+        aria-label="Refresh"
+      >
+        ↻
+      </button>
+      <button type="button" class="history-panel__close" (click)="close()" aria-label="Close">×</button>
+    </div>
+
+    <p class="history-panel__note" *ngIf="!selected">
+      Past resets are saved here permanently. History cannot be deleted.
+      <span class="history-live" *ngIf="lastUpdated"> · Updated {{ getLastUpdatedLabel() }} (auto-refresh)</span>
+    </p>
+
+    <div class="history-panel__body" *ngIf="loading && !selected">
+      <p class="history-loading">Loading history…</p>
+    </div>
+
+    <div class="history-panel__body" *ngIf="!loading && !selected">
+      <p class="history-empty" *ngIf="historyList.length === 0">No archived history yet. Admin reset saves a snapshot here.</p>
+
+      <div class="history-list" *ngIf="historyList.length > 0">
+        <button
+          type="button"
+          class="history-list-item"
+          *ngFor="let h of historyList"
+          (click)="selectRecord(h)"
+        >
+          <div class="history-list-item__top">
+            <strong>{{ formatDate(h.resetAt) }}</strong>
+            <span class="history-badge">{{ h.expenseCount }} expenses</span>
+          </div>
+          <div class="history-list-item__stats">
+            <span>Full: {{ formatCurrency(h.fullAmount) }}</span>
+            <span>Spent: {{ formatCurrency(h.totalExpenses) }}</span>
+            <span>Balance: {{ formatCurrency(h.balance) }}</span>
+          </div>
+          <small>Reset by {{ h.resetByName || h.resetByPhone }}</small>
+        </button>
+      </div>
+    </div>
+
+    <div class="history-panel__body" *ngIf="selected">
+      <div class="history-detail-summary">
+        <div class="detail-row"><span>Reset date</span><strong>{{ formatDate(selected.resetAt) }}</strong></div>
+        <div class="detail-row"><span>Full amount</span><strong>{{ formatCurrency(selected.fullAmount) }}</strong></div>
+        <div class="detail-row"><span>Total expenses</span><strong>{{ formatCurrency(selected.totalExpenses) }}</strong></div>
+        <div class="detail-row"><span>Balance</span><strong>{{ formatCurrency(selected.balance) }}</strong></div>
+        <div class="detail-row"><span>Members</span><strong>{{ selected.totalMembers }}</strong></div>
+        <div class="detail-row"><span>Reset by</span><strong>{{ selected.resetByName || selected.resetByPhone }}</strong></div>
+      </div>
+
+      <p class="history-loading" *ngIf="loadingDetail">Loading expenses…</p>
+
+      <div class="history-expenses" *ngIf="!loadingDetail && selected.expenses?.length">
+        <h3>Archived expenses ({{ selected.expenses!.length }})</h3>
+        <div class="history-expense-item" *ngFor="let e of selected.expenses">
+          <div class="history-expense-item__row">
+            <strong class="history-purchase-name">{{ getPurchaseName(e) }}</strong>
+            <span class="history-expense-amount">{{ formatCurrency(e.amount) }}</span>
+          </div>
+          <div class="history-expense-item__meta">
+            <span class="history-expense-item__cat" *ngIf="e.categoryName">{{ e.categoryName }}</span>
+            <span class="history-expense-item__date">{{ formatShortDate(e.date) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="history-empty" *ngIf="!loadingDetail && (!selected.expenses || selected.expenses.length === 0)">
+        No expenses were archived in this reset.
+      </p>
+    </div>
+  </div>
+</div>

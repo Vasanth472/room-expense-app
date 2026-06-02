@@ -12,11 +12,12 @@ import { Comment } from '../../models/comment.model';
 import { Category } from '../../models/category.model';
 import { CommentEntry } from '../../models/comment-entry.model';
 import { CategoryIconUtil } from '../../utils/category-icons.util';
+import { PageHeaderComponent } from '../shared/page-header.component';
 
 @Component({
   selector: 'app-expense-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PageHeaderComponent],
   templateUrl: './expense-list.component.html',
   styleUrls: ['./expense-list.component.css']
 })
@@ -196,6 +197,10 @@ export class ExpenseListComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/admin']);
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 
   formatCurrency(amount: number): string {

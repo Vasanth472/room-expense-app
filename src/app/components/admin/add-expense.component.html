@@ -1,8 +1,11 @@
-<div class="add-expense-container">
-  <header class="page-header">
-    <button class="btn btn-secondary" (click)="cancel()">← Back</button>
-    <h1><span class="header-icon">💰</span> {{ editMode ? 'Edit Expense' : 'Add New Expense' }}</h1>
-  </header>
+<div class="add-expense-container app-shell">
+  <app-page-header
+    [title]="editMode ? 'Edit Expense' : 'Add Expense'"
+    [showBack]="true"
+    [showLogout]="true"
+    (backClick)="cancel()"
+    (logoutClick)="logout()"
+  ></app-page-header>
 
   <div class="container">
     <div class="card">

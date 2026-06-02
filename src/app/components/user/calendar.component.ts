@@ -8,11 +8,12 @@ import { AuthService } from '../../services/auth.service';
 import { CommentEntry } from '../../models/comment-entry.model';
 import { Category } from '../../models/category.model';
 import { Location } from '@angular/common';
+import { PageHeaderComponent } from '../shared/page-header.component';
 
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PageHeaderComponent],
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.css']
 })
@@ -256,10 +257,12 @@ export class CalendarComponent implements OnInit {
     
     return `${minutes}m ${seconds}s`;
   }
+  goBack(): void {
+    this.router.navigate(['/user']);
+  }
 
-
-goBack(): void {
-  this.location.back();
-}
+  logout(): void {
+    this.authService.logout();
+  }
 }
 

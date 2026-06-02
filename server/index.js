@@ -24,7 +24,7 @@ const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/room_expe
 mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log('Connected to MongoDB');
-    seedDefaultMembers();
+    seedDefaultMembers().then(() => seedAdminContactPhone());
     seedDefaultSettings();
   })
   .catch(err => console.error('MongoDB connection error', err));
@@ -72,6 +72,27 @@ async function seedDefaultMembers() {
     }
   } catch (err) {
     console.error('Error seeding members:', err);
+  }
+}
+
+async function seedAdminContactPhone() {
+  try {
+    const existing = await Setting.findOne({ key: 'adminContactPhone' });
+    if (existing) return;
+    const fromEnv = process.env.ADMIN_CONTACT_PHONE;
+    if (fromEnv && /^\d{10}$/.test(String(fromEnv).replace(/\D/g, ''))) {
+      const phone = String(fromEnv).replace(/\D/g, '').slice(-10);
+      await Setting.create({ key: 'adminContactPhone', value: phone });
+      console.log('Seeded admin contact phone from env:', phone);
+      return;
+    }
+    const admin = await Member.findOne({ isAdmin: true, isActive: true }).sort({ addedDate: 1 }).lean();
+    if (admin) {
+      await Setting.create({ key: 'adminContactPhone', value: admin.phone });
+      console.log('Seeded admin contact phone:', admin.phone);
+    }
+  } catch (err) {
+    console.error('Error seeding admin contact phone:', err);
   }
 }
 

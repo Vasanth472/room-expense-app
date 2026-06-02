@@ -1,0 +1,123 @@
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: #fff;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.08);
+  padding: calc(10px + env(safe-area-inset-top, 0px)) 12px 12px;
+  margin-bottom: 16px;
+}
+
+.app-header__toolbar {
+  display: grid;
+  grid-template-columns: minmax(44px, auto) 1fr minmax(44px, auto);
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+}
+
+.app-header__slot {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.app-header__slot--start {
+  justify-content: flex-start;
+}
+
+.app-header__slot--end {
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.app-header__center {
+  text-align: center;
+  min-width: 0;
+  padding: 0 4px;
+}
+
+.app-header__title {
+  margin: 0;
+  font-size: clamp(1.05rem, 4.2vw, 1.4rem);
+  font-weight: 700;
+  color: #667eea;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.app-header__subtitle:empty {
+  display: none;
+}
+
+.app-header__subtitle {
+  margin-top: 6px;
+}
+
+.app-header__meta:empty {
+  display: none;
+}
+
+.app-header__meta {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #f0f0f0;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.app-header__btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: transform 0.15s, opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app-header__btn:active {
+  transform: scale(0.97);
+}
+
+.app-header__btn--back {
+  background: #eef2ff;
+  color: #5568d3;
+}
+
+.app-header__btn--logout {
+  background: #667eea;
+  color: #fff;
+  padding: 10px 16px;
+}
+
+.app-header__btn--ghost {
+  background: #f3f4f6;
+  color: #444;
+}
+
+@media (min-width: 768px) {
+  .app-header {
+    border-radius: 0;
+    margin-bottom: 20px;
+  }
+
+  .app-header__title {
+    font-size: 1.35rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .app-header__btn-label--long {
+    display: none;
+  }
+}

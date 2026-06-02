@@ -2,8 +2,13 @@ const express = require('express');
 const router = express.Router();
 const Expense = require('../models/Expense');
 const Category = require('../models/Category');
+const Setting = require('../models/Setting');
+const Member = require('../models/Member');
 const { verifyToken } = require('../middleware/auth');
+const expenseHistoryRoutes = require('./expenseHistory');
 const crypto = require('crypto');
+
+router.use(expenseHistoryRoutes);
 
 // GET /api/expenses
 router.get('/', async (req, res) => {
@@ -60,15 +65,19 @@ router.get('/summary', async (req, res) => {
     end.setHours(23,59,59,999);
 
     const expenses = await Expense.find({ date: { $gte: start, $lte: end } }).lean();
-    const totalExpenses = expenses.reduce((s, e) => s + (e.amount || 0), 0);
+    const totalExpenses = expenses.reduce((s, e) => s + (Number(e.amount) || 0), 0);
 
-    // get active member count
-    const Member = require('../models/Member');
     const totalMembers = await Member.countDocuments({ isActive: true });
 
-    const perPersonAmount = totalMembers > 0 ? totalExpenses / totalMembers : totalExpenses;
+    const fullAmountSetting = await Setting.findOne({ key: 'fullAmount' }).lean();
+    const fullAmount = fullAmountSetting && typeof fullAmountSetting.value === 'number'
+      ? fullAmountSetting.value
+      : Number(fullAmountSetting?.value) || 0;
 
-    res.json({ month: m, year: y, totalExpenses, totalMembers, perPersonAmount, balance: 0 });
+    const perPersonAmount = totalMembers > 0 ? fullAmount / totalMembers : 0;
+    const balance = fullAmount - totalExpenses;
+
+    res.json({ month: m, year: y, fullAmount, totalExpenses, totalMembers, perPersonAmount, balance });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });

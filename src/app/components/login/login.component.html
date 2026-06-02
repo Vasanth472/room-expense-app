@@ -1,5 +1,5 @@
-<div class="login-container">
-  <div class="login-card">
+<div class="login-container m-login-screen">
+  <div class="login-card m-login-card">
     <h1>Room Expense Management</h1>
     <p class="subtitle">WhatsApp Group Member Login</p>
 
@@ -80,7 +80,7 @@
 
       <div class="modal-body">
         <p class="modal-description">
-          Enter your phone number below. We'll send you a password reset link via SMS or you can contact the admin for assistance.
+          Enter your registered mobile number. A reset request is sent to the admin dashboard instantly. You can also call or WhatsApp the admin below.
         </p>
 
         <div class="form-group">
@@ -94,7 +94,21 @@
             maxlength="10"
             class="form-control"
             (input)="onForgotPhoneInput($event)"
+            [disabled]="forgotLoading"
           />
+        </div>
+
+        <div class="form-group">
+          <label for="forgotNote">Message for admin (optional)</label>
+          <textarea
+            id="forgotNote"
+            [(ngModel)]="forgotNote"
+            name="forgotNote"
+            rows="2"
+            class="form-control"
+            placeholder="e.g. I forgot my password after changing phones"
+            [disabled]="forgotLoading"
+          ></textarea>
         </div>
 
         <div *ngIf="forgotError" class="error-message">
@@ -105,9 +119,13 @@
           {{ forgotMessage }}
         </div>
 
-        <div class="admin-contact">
-          <p><strong>Or contact admin directly:</strong></p>
-          <p>Admin Phone: <strong>7339211**8</strong></p>
+        <div class="admin-contact" *ngIf="adminContactPhone">
+          <p><strong>Contact admin directly:</strong></p>
+          <p>Admin: <strong>{{ adminContactPhone }}</strong></p>
+          <div class="admin-contact-actions">
+            <a [href]="getAdminTelLink()" class="btn btn-secondary btn-sm">Call</a>
+            <a [href]="getAdminWhatsAppLink()" target="_blank" rel="noopener" class="btn btn-primary btn-sm">WhatsApp</a>
+          </div>
         </div>
       </div>
 
@@ -123,9 +141,10 @@
           type="button" 
           class="btn btn-primary"
           (click)="submitForgotPassword()"
-          [disabled]="!forgotPhone || forgotPhone.length !== 10"
+          [disabled]="forgotLoading || !forgotPhone || forgotPhone.length !== 10"
         >
-          Send Reset Link
+          <span *ngIf="!forgotLoading">Notify Admin</span>
+          <span *ngIf="forgotLoading">Sending...</span>
         </button>
       </div>
     </div>

@@ -5,11 +5,12 @@ import { FormsModule } from '@angular/forms';
 import { MemberService } from '../../services/member.service';
 import { AuthService } from '../../services/auth.service';
 import { Member } from '../../models/member.model';
+import { PageHeaderComponent } from '../shared/page-header.component';
 
 @Component({
   selector: 'app-add-member',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PageHeaderComponent],
   templateUrl: './add-member.component.html',
   styleUrls: ['./add-member.component.css']
 })
@@ -171,5 +172,9 @@ export class AddMemberComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/admin']);
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }

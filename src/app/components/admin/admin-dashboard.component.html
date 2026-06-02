@@ -1,20 +1,18 @@
-<div class="admin-dashboard">
-  <header class="dashboard-header">
-    <div class="header-left">
-      <h1>Admin Dashboard</h1>
-      <div class="datetime-display">
-        <div class="date-display">📅 {{ currentDateString }}</div>
-        <div class="time-display">🕐 {{ currentTime }}</div>
-      </div>
+<div class="admin-dashboard app-shell">
+  <app-page-header
+    title="Admin Dashboard"
+    [showLogout]="true"
+    (logoutClick)="logout()"
+  >
+    <div header-subtitle class="datetime-display">
+      <div class="date-display">📅 {{ currentDateString }}</div>
+      <div class="time-display">🕐 {{ currentTime }}</div>
     </div>
-    <div class="header-actions">
-      <span class="user-info">
-        <span *ngIf="currentMember">{{ currentMember.name }} ({{ authService.getCurrentPhone() }})</span>
-        <span *ngIf="!currentMember">Admin: {{ authService.getCurrentPhone() }}</span>
-      </span>
-      <button class="btn btn-secondary" (click)="logout()">Logout</button>
-    </div>
-  </header>
+    <span header-meta class="user-info">
+      <span *ngIf="currentMember">{{ currentMember.name }} ({{ authService.getCurrentPhone() }})</span>
+      <span *ngIf="!currentMember">Admin: {{ authService.getCurrentPhone() }}</span>
+    </span>
+  </app-page-header>
 
   <div class="container">
     <div class="dashboard-content">
@@ -22,14 +20,39 @@
       <div class="summary-card">
         <div class="summary-header">
           <h3><span class="header-icon">📊</span> Monthly Summary</h3>
-          <!-- <div class="month-badge">{{ getMonthName(currentMonth) }} {{ currentYear }}</div> -->
+          <div class="summary-actions">
+            <button type="button" class="btn btn-secondary btn-sm" (click)="openHistory()">History</button>
+            <button
+              type="button"
+              class="btn btn-danger btn-sm"
+              (click)="confirmResetAll()"
+              [disabled]="isResetting"
+            >
+              {{ isResetting ? 'Resetting…' : 'Reset All' }}
+            </button>
+          </div>
         </div>
+        <div class="summary-action-feedback success" *ngIf="resetAllMessage">{{ resetAllMessage }}</div>
+        <div class="summary-action-feedback error" *ngIf="resetAllError">{{ resetAllError }}</div>
         
         <div class="summary-content" *ngIf="summary; else noSummary">
-          <div class="summary-grid">
+          <div class="summary-grid m-stat-carousel" role="list" aria-label="Monthly statistics">
             <div class="summary-stat">
+              <div class="stat-label">Full Amount</div>
+              <div class="stat-value highlight">{{ formatCurrency(getFullAmountForSummary()) }}</div>
+            </div>
+
+            <div
+              class="summary-stat summary-stat--clickable"
+              role="button"
+              tabindex="0"
+              (click)="openExpenseBreakdown()"
+              (keydown.enter)="openExpenseBreakdown()"
+              aria-label="View purchase expense names"
+            >
               <div class="stat-label">Total Expenses</div>
-              <div class="stat-value highlight">{{ formatCurrency(summary.totalExpenses) }}</div>
+              <div class="stat-value highlight">{{ formatCurrency(getTotalExpenses()) }}</div>
+              <small class="stat-hint stat-hint--tap">Tap to see purchase names →</small>
             </div>
             
             <div class="summary-stat">
@@ -39,20 +62,24 @@
             
             <div class="summary-stat">
               <div class="stat-label">Per Person Amount</div>
-              <div class="stat-value highlight">{{ formatCurrency(summary.perPersonAmount) }}</div>
+              <div class="stat-value highlight">{{ formatCurrency(getPerPersonAmount()) }}</div>
+              <small class="stat-hint">Full amount ÷ members</small>
             </div>
             
-            <div class="summary-stat">
+            <div class="summary-stat balance-stat">
               <div class="stat-label">Balance</div>
-              <div class="stat-value" [class.positive]="getRemaining() >= 0" [class.negative]="getRemaining() < 0">
-                {{ formatCurrency(getRemaining()) }}
+              <div class="stat-value" [class.positive]="getBalance() >= 0" [class.negative]="getBalance() < 0">
+                {{ formatCurrency(getBalance()) }}
               </div>
+              <small class="stat-hint balance-formula">
+                {{ formatCurrency(getFullAmountForSummary()) }} − {{ formatCurrency(getTotalExpenses()) }} = {{ formatCurrency(getBalance()) }}
+              </small>
             </div>
           </div>
         </div>
         <ng-template #noSummary>
           <div class="no-data">
-            <p>No expenses recorded for this month.</p>
+            <p>Could not load monthly summary.</p>
           </div>
         </ng-template>
         
@@ -96,8 +123,83 @@
         </div>
       </div>
 
+      <!-- Password reset requests (live queue) -->
+      <div class="reset-requests-card">
+        <div class="reset-requests-header">
+          <h3><span class="header-icon">🔐</span> Password reset requests</h3>
+          <span class="pending-badge" *ngIf="pendingResetRequests.length">{{ pendingResetRequests.length }} pending</span>
+          <button type="button" class="btn btn-secondary btn-sm" (click)="loadPendingResetRequests()">Refresh</button>
+        </div>
+
+        <div *ngIf="resetActionMessage" class="reset-feedback success">{{ resetActionMessage }}</div>
+        <div *ngIf="resetActionError" class="reset-feedback error">{{ resetActionError }}</div>
+
+        <div class="admin-contact-setting">
+          <label for="adminContactEdit">Admin contact (shown on login forgot-password):</label>
+          <div class="admin-contact-row">
+            <input
+              id="adminContactEdit"
+              type="tel"
+              maxlength="10"
+              class="form-control"
+              [(ngModel)]="adminContactEdit"
+              placeholder="10-digit number"
+            />
+            <button
+              type="button"
+              class="btn btn-primary btn-sm"
+              (click)="saveAdminContact()"
+              [disabled]="savingAdminContact"
+            >
+              {{ savingAdminContact ? 'Saving...' : 'Save' }}
+            </button>
+          </div>
+          <small *ngIf="adminContactPhone">Members see: {{ adminContactPhone }}</small>
+        </div>
+
+        <p class="reset-empty" *ngIf="pendingResetRequests.length === 0">
+          No pending requests. When a member uses Forgot Password, they appear here.
+        </p>
+
+        <div class="reset-request-list" *ngIf="pendingResetRequests.length > 0">
+          <div class="reset-request-item" *ngFor="let req of pendingResetRequests">
+            <div class="reset-request-meta">
+              <strong>{{ req.memberName }}</strong>
+              <span class="reset-phone">{{ req.phone }}</span>
+              <span class="reset-time">{{ formatRequestTime(req.requestedAt) }}</span>
+              <p class="reset-note" *ngIf="req.message">{{ req.message }}</p>
+            </div>
+            <div class="reset-request-actions">
+              <input
+                type="password"
+                class="form-control reset-password-input"
+                [(ngModel)]="newPasswordByRequestId[req.id]"
+                placeholder="New password"
+                [disabled]="processingRequestId === req.id"
+              />
+              <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                (click)="approveResetRequest(req)"
+                [disabled]="processingRequestId === req.id"
+              >
+                Set password
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm"
+                (click)="rejectResetRequest(req)"
+                [disabled]="processingRequestId === req.id"
+              >
+                Reject
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Action Cards -->
-      <div class="action-cards">
+      <div class="action-cards m-menu-list">
         <div class="action-card" (click)="navigateToCategories()">
           <div class="action-icon">🏷️</div>
           <h3>Manage Categories</h3>
@@ -125,4 +227,18 @@
       </div>
     </div>
   </div>
+
+  <app-expense-breakdown-panel
+    [open]="showExpenseBreakdown"
+    [month]="currentMonth"
+    [year]="currentYear"
+    [totalAmount]="getTotalExpenses()"
+    (closed)="closeExpenseBreakdown()"
+  ></app-expense-breakdown-panel>
+
+  <app-expense-history-panel
+    [open]="showHistoryPanel"
+    [refreshKey]="historyRefreshKey"
+    (closed)="closeHistory()"
+  ></app-expense-history-panel>
 </div>

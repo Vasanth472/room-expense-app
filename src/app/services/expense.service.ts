@@ -31,11 +31,16 @@ export class ExpenseService {
   }
 
   getExpensesByMonth(month: number, year: number): Observable<Expense[]> {
-    return this.getExpenses().pipe(
-      map(expenses => expenses.filter(expense => {
-        const expDate = new Date(expense.date);
-        return expDate.getMonth() + 1 === month && expDate.getFullYear() === year;
-      }))
+    return this.getExpensesForMonth(month, year);
+  }
+
+  getExpensesForMonth(month: number, year: number): Observable<Expense[]> {
+    return this.http.get<any[]>(`/api/expenses?month=${month}&year=${year}`).pipe(
+      map(items => Array.isArray(items) ? items.map(i => this.toExpense(i)) : []),
+      catchError(err => {
+        console.error('Failed to load monthly expenses', err);
+        return of([]);
+      })
     );
   }
 
@@ -101,15 +106,23 @@ export class ExpenseService {
       map(res => ({
         month: res.month,
         year: res.year,
-        totalExpenses: res.totalExpenses || 0,
-        totalMembers: res.totalMembers || 0,
-        perPersonAmount: res.perPersonAmount || 0,
-        balance: res.balance || 0
+        fullAmount: Number(res.fullAmount) || 0,
+        totalExpenses: Number(res.totalExpenses) || 0,
+        totalMembers: Number(res.totalMembers) || 0,
+        perPersonAmount: Number(res.perPersonAmount) || 0,
+        balance: Number(res.balance) || 0
       } as MonthlySummary)),
       catchError(err => {
         console.error('Failed to load monthly summary from API:', err);
-        // return a default empty summary
-        return of({ month, year, totalExpenses: 0, totalMembers: 0, perPersonAmount: 0, balance: 0 } as MonthlySummary);
+        return of({
+          month,
+          year,
+          fullAmount: 0,
+          totalExpenses: 0,
+          totalMembers: 0,
+          perPersonAmount: 0,
+          balance: 0
+        } as MonthlySummary);
       })
     );
   }

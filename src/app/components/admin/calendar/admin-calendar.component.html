@@ -98,20 +98,22 @@
     <div class="spinner"></div>
   </div>
 </div> -->
-<div class="calendar-container">
+<div class="calendar-container app-shell">
 
-  <!-- Header -->
-  <div class="header">
-    <button class="back-button" (click)="goBack()">Back to Admin Dashboard</button>
-    <h2 class="title">Calendar & Comments</h2>
-
-    <div class="month-navigation">
-      <button class="nav-btn" (click)="previousMonth()">&lt;</button>
+  <app-page-header
+    title="Calendar & Comments"
+    [showBack]="true"
+    [showLogout]="true"
+    (backClick)="goBack()"
+    (logoutClick)="logout()"
+  >
+    <div header-subtitle class="month-navigation">
+      <button type="button" class="nav-btn" (click)="previousMonth()">&lt;</button>
       <span>{{ getMonthName() }} {{ currentYear }}</span>
-      <button class="nav-btn" (click)="nextMonth()">&gt;</button>
-      <button class="nav-btn" (click)="goToToday()">Today</button>
+      <button type="button" class="nav-btn" (click)="nextMonth()">&gt;</button>
     </div>
-  </div>
+    <button header-actions type="button" class="app-header__btn app-header__btn--ghost" (click)="goToToday()">Today</button>
+  </app-page-header>
 
   <!-- Calendar View -->
   <div class="calendar">

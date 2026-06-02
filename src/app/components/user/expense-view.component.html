@@ -1,8 +1,11 @@
-<div class="expense-view-container">
-  <header class="page-header">
-    <button class="btn btn-secondary" (click)="goBack()">← Back</button>
-    <h1>My Expenses</h1>
-  </header>
+<div class="expense-view-container app-shell">
+  <app-page-header
+    title="My Expenses"
+    [showBack]="true"
+    [showLogout]="true"
+    (backClick)="goBack()"
+    (logoutClick)="logout()"
+  ></app-page-header>
 
   <div class="container">
     <div class="card filter-card">

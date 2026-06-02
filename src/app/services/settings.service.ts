@@ -20,4 +20,15 @@ export class SettingsService {
   setFullAmount(amount: number) {
     return this.http.put<any>('/api/settings/full-amount', { fullAmount: amount });
   }
+
+  getAdminContactPhone(): Observable<string> {
+    return this.http.get<{ adminContactPhone: string }>('/api/settings/admin-contact').pipe(
+      map(r => (r?.adminContactPhone || '').trim()),
+      catchError(() => of(''))
+    );
+  }
+
+  setAdminContactPhone(phone: string) {
+    return this.http.put<any>('/api/settings/admin-contact', { adminContactPhone: phone });
+  }
 }

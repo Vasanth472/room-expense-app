@@ -1,0 +1,33 @@
+<div class="breakdown-overlay" *ngIf="open" (click)="close()">
+  <div class="breakdown-panel" (click)="$event.stopPropagation()">
+    <div class="breakdown-panel__header">
+      <h2>Purchase expenses</h2>
+      <button type="button" class="breakdown-panel__close" (click)="close()" aria-label="Close">×</button>
+    </div>
+
+    <p class="breakdown-panel__sub">
+      {{ getMonthLabel() }} · Total {{ formatCurrency(totalAmount) }} · {{ expenses.length }} item(s)
+    </p>
+
+    <div class="breakdown-panel__body">
+      <p class="breakdown-loading" *ngIf="loading">Loading expenses…</p>
+
+      <p class="breakdown-empty" *ngIf="!loading && expenses.length === 0">
+        No expenses recorded for this month.
+      </p>
+
+      <ul class="breakdown-list" *ngIf="!loading && expenses.length > 0">
+        <li class="breakdown-item" *ngFor="let e of expenses">
+          <div class="breakdown-item__main">
+            <span class="breakdown-item__name">{{ getPurchaseName(e) }}</span>
+            <span class="breakdown-item__amount">{{ formatCurrency(e.amount) }}</span>
+          </div>
+          <div class="breakdown-item__meta">
+            <span class="breakdown-item__cat" *ngIf="e.categoryName">{{ e.categoryName }}</span>
+            <span class="breakdown-item__date">{{ formatDate(e.date) }}</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+<header class="app-header">
+  <div class="app-header__toolbar">
+    <div class="app-header__slot app-header__slot--start">
+      <button
+        *ngIf="showBack"
+        type="button"
+        class="app-header__btn app-header__btn--back"
+        (click)="onBack()"
+        aria-label="Go back"
+      >
+        <span aria-hidden="true">←</span>
+        <span class="app-header__btn-label--long">Back</span>
+      </button>
+    </div>
+
+    <div class="app-header__center">
+      <h1 class="app-header__title">{{ title }}</h1>
+      <div class="app-header__subtitle">
+        <ng-content select="[header-subtitle]"></ng-content>
+      </div>
+    </div>
+
+    <div class="app-header__slot app-header__slot--end">
+      <ng-content select="[header-actions]"></ng-content>
+      <button
+        *ngIf="showLogout"
+        type="button"
+        class="app-header__btn app-header__btn--logout"
+        (click)="onLogout()"
+        aria-label="Logout"
+      >
+        Logout
+      </button>
+    </div>
+  </div>
+
+  <div class="app-header__meta">
+    <ng-content select="[header-meta]"></ng-content>
+  </div>
+</header>

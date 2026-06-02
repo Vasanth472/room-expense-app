@@ -1,8 +1,11 @@
-<div class="add-member-container">
-  <header class="page-header">
-    <button class="btn btn-secondary" (click)="goBack()">← Back</button>
-    <h1>Manage WhatsApp Group Members</h1>
-  </header>
+<div class="add-member-container app-shell">
+  <app-page-header
+    title="Manage Members"
+    [showBack]="true"
+    [showLogout]="true"
+    (backClick)="goBack()"
+    (logoutClick)="logout()"
+  ></app-page-header>
 
   <div class="container">
     <div class="card">

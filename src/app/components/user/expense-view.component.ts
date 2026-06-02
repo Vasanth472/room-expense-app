@@ -12,11 +12,12 @@ import { Comment } from '../../models/comment.model';
 import { Category } from '../../models/category.model';
 import { CommentEntry } from '../../models/comment-entry.model';
 import { CategoryIconUtil } from '../../utils/category-icons.util';
+import { PageHeaderComponent } from '../shared/page-header.component';
 
 @Component({
   selector: 'app-expense-view',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PageHeaderComponent],
   templateUrl: './expense-view.component.html',
   styleUrls: ['./expense-view.component.css']
 })
@@ -203,6 +204,10 @@ export class ExpenseViewComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/user']);
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 
   formatCurrency(amount: number): string {

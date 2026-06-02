@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const Member = require('../models/Member');
+const passwordResetRoutes = require('./passwordReset');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_change_this';
 
@@ -32,5 +33,7 @@ router.post('/login', async (req, res) => {
     return res.status(500).json({ error: 'Server error' });
   }
 });
+
+router.use(passwordResetRoutes);
 
 module.exports = router;

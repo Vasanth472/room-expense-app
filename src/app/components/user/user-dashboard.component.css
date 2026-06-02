@@ -93,9 +93,42 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
   margin-bottom: 25px;
   padding-bottom: 15px;
   border-bottom: 2px solid #667eea;
+}
+
+.summary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+
+@media (min-width: 480px) {
+  .summary-actions {
+    width: auto;
+    margin-left: auto;
+  }
+}
+
+.summary-stat--clickable {
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.summary-stat--clickable:hover,
+.summary-stat--clickable:focus {
+  outline: none;
+  background: #eef2ff;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.35);
+}
+
+.stat-hint--tap {
+  color: #667eea;
+  font-weight: 600;
 }
 
 .summary-header h2 {
@@ -143,6 +176,24 @@
 .summary-stat:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-hint {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  color: #888;
+  text-transform: none;
+  font-weight: normal;
+}
+
+.balance-stat .balance-formula {
+  font-size: 12px;
+  color: #555;
+  font-weight: 600;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #ddd;
 }
 
 .stat-label {
@@ -250,189 +301,7 @@
   transform: none;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .user-dashboard {
-    padding-bottom: 20px;
-  }
-
-  .container {
-    padding: 0 10px;
-  }
-
-  .dashboard-header {
-    flex-direction: column;
-    gap: 12px;
-    align-items: stretch;
-    padding: 15px;
-  }
-
-  .header-left {
-    width: 100%;
-  }
-
-  .dashboard-header h1 {
-    font-size: 20px;
-    margin-bottom: 8px;
-  }
-
-  .datetime-display {
-    flex-direction: row;
-    gap: 8px;
-    width: 100%;
-    flex-wrap: wrap;
-  }
-
-  .date-display,
-  .time-display {
-    flex: 1;
-    min-width: 140px;
-    font-size: 12px;
-    padding: 6px 10px;
-    justify-content: center;
-  }
-
-  .time-display {
-    font-size: 14px;
-  }
-
-  .header-actions {
-    width: 100%;
-    flex-direction: column;
-    gap: 10px;
-    align-items: stretch;
-  }
-
-  .user-info {
-    font-size: 12px;
-    text-align: center;
-    padding: 8px;
-    background: #f8f9fa;
-    border-radius: 6px;
-  }
-
-  .btn {
-    width: 100%;
-    padding: 12px;
-    font-size: 14px;
-    min-height: 44px; /* Better touch target */
-    border-radius: 6px;
-  }
-
-  .summary-card {
-    padding: 15px;
-    border-radius: 12px;
-  }
-
-  .summary-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-  }
-
-  .summary-header h2 {
-    font-size: 20px;
-  }
-
-  .header-icon {
-    font-size: 24px;
-  }
-
-  .summary-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .summary-stat {
-    padding: 15px;
-  }
-
-  .stat-label {
-    font-size: 12px;
-  }
-
-  .stat-value {
-    font-size: 20px;
-  }
-
-  .stat-value.highlight {
-    font-size: 22px;
-  }
-
-  .action-cards {
-    grid-template-columns: 1fr;
-    gap: 15px;
-  }
-
-  .action-card {
-    padding: 20px;
-    min-height: 44px; /* Better touch target */
-    cursor: pointer;
-    -webkit-tap-highlight-color: rgba(102, 126, 234, 0.2);
-  }
-
-  .action-icon {
-    font-size: 40px;
-    margin-bottom: 12px;
-  }
-
-  .action-card h3 {
-    font-size: 18px;
-    margin-bottom: 8px;
-  }
-
-  .action-card p {
-    font-size: 13px;
-  }
-}
-
-@media (max-width: 480px) {
-  .dashboard-header {
-    padding: 12px;
-  }
-
-  .dashboard-header h1 {
-    font-size: 18px;
-  }
-
-  .date-display,
-  .time-display {
-    font-size: 11px;
-    padding: 5px 8px;
-    min-width: 120px;
-  }
-
-  .time-display {
-    font-size: 13px;
-  }
-
-  .summary-card {
-    padding: 12px;
-  }
-
-  .summary-header h2 {
-    font-size: 18px;
-  }
-
-  .stat-value {
-    font-size: 18px;
-  }
-
-  .stat-value.highlight {
-    font-size: 20px;
-  }
-
-  .action-card {
-    padding: 15px;
-  }
-
-  .action-icon {
-    font-size: 36px;
-  }
-}
-
+/* Mobile: global mobile-theme.css */
 @media (min-width: 769px) and (max-width: 1024px) {
   .summary-grid {
     grid-template-columns: repeat(2, 1fr);
